@@ -1,0 +1,54 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion '27.0.3'
+
+    defaultConfig {
+        applicationId "com.codeboy.qianghongbao"
+        minSdkVersion 16
+        targetSdkVersion 19
+        versionCode 307
+        versionName "3.0.7"
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    signingConfigs {
+
+        codeboy {
+
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles 'proguard-android.txt'
+        }
+
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        def keystore = properties.getProperty("KEY_STORE")
+        def storepasswd = properties.getProperty("KEY_STORE_PASSWORD")
+        def alias = properties.getProperty("KEY_ALIAS")
+        def aliaspasswd = properties.getProperty("KEY_ALIAS_PASSWORD")
+
+        if (keystore != null && storepasswd != null && alias != null && aliaspasswd != null) {
+            android.signingConfigs.debug.storeFile = file(keystore);
+            android.signingConfigs.debug.storePassword = storepasswd;
+            android.signingConfigs.debug.keyAlias = alias;
+            android.signingConfigs.debug.keyPassword = aliaspasswd;
+        }
+    }
+
+    useLibrary 'org.apache.http.legacy'
+}
+
+dependencies {
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:23.1.1'
+}

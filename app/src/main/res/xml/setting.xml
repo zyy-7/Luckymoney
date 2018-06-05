@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="抢红包">
+        <Preference
+            android:title="前往打开辅助服务"
+            android:key="OPEN_ACCESSIBILITY"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="检测外挂">
+
+        <com.codeboy.qianghongbao.widget.CustomSwitchPreference
+            android:defaultValue="false"
+            android:title="检测红包挂件功能"
+            android:summary="开启后能提示疑似开外挂的账号"
+            android:key="KEY_ENABLE_DETECT"/>
+
+        <ListPreference
+            android:key="timeListPreference"
+            android:title="选择时间"
+            android:summary="当账号在该时间内抢到红包，则认为是外挂"
+            android:entries="@array/list_entries"
+            android:entryValues="@array/list_entries_value"
+            android:dialogTitle="选择时间"
+            />
+
+    </PreferenceCategory>
+
+
+
+
+
+</PreferenceScreen>

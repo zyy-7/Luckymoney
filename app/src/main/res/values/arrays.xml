@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+
+    <string-array name="list_entries">
+        <item>1秒</item>
+        <item>2秒</item>
+        <item>4秒</item>
+        <item>8秒</item>
+    </string-array>
+    <string-array name="list_entries_value">
+        <item>1000</item>
+        <item>2000</item>
+        <item>4000</item>
+        <item>8000</item>
+    </string-array>
+</resources>
