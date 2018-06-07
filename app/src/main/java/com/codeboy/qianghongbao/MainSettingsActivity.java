@@ -12,7 +12,7 @@ import android.support.v7.app.ActionBar;
  *
  * @author LeonLee
  */
-public abstract class BaseSettingsActivity extends BaseActivity {
+public abstract class MainSettingsActivity extends MainActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

@@ -11,7 +11,7 @@ import android.preference.SwitchPreference;
 import android.provider.Settings;
 import android.widget.Toast;
 
-public class SettingActivity extends BaseSettingsActivity {
+public class SettingActivity extends MainSettingsActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +30,7 @@ public class SettingActivity extends BaseSettingsActivity {
 		return mMainFragment;
 	}
 
-	public static class MainFragment extends BaseSettingsFragment {
+	public static class MainFragment extends MainSettingsFragment {
 
 		private SwitchPreference notificationPref;
 		private boolean notificationChangeByUser = true;
@@ -39,7 +39,7 @@ public class SettingActivity extends BaseSettingsActivity {
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 
-			addPreferencesFromResource(R.xml.setting);
+			addPreferencesFromResource(R.xml.settings);
 
 			//检测外挂开关
 			Preference detectPref = findPreference("KEY_ENABLE_DETECT");
@@ -94,7 +94,5 @@ public class SettingActivity extends BaseSettingsActivity {
 				});
 			}
 		}
-
-
 	}
 }

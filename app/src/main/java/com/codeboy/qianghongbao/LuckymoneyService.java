@@ -25,7 +25,7 @@ import java.util.List;
  *
  * 抢红包外挂服务
  */
-public class QiangHongBaoService extends AccessibilityService {
+public class LuckymoneyService extends AccessibilityService {
 
     private static final String TAG = "QiangHongBao";
 
@@ -33,7 +33,7 @@ public class QiangHongBaoService extends AccessibilityService {
             WechatAccessibilityJob.class,
     };
 
-    private static QiangHongBaoService service;
+    private static LuckymoneyService service;
 
     private List<AccessibilityJob> mAccessibilityJobs;
     private HashMap<String, AccessibilityJob> mPkgAccessbilityJobMap;
@@ -149,8 +149,4 @@ public class QiangHongBaoService extends AccessibilityService {
         }
         return true;
     }
-
-
-
-
 }

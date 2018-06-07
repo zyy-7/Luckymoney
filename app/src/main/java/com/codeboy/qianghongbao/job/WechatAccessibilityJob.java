@@ -18,7 +18,7 @@ import android.widget.Toast;
 
 import com.codeboy.qianghongbao.BuildConfig;
 import com.codeboy.qianghongbao.Config;
-import com.codeboy.qianghongbao.QiangHongBaoService;
+import com.codeboy.qianghongbao.LuckymoneyService;
 import com.codeboy.qianghongbao.util.AccessibilityHelper;
 import com.codeboy.qianghongbao.util.NotifyHelper;
 
@@ -72,7 +72,7 @@ public class WechatAccessibilityJob extends BaseAccessibilityJob {
 
 
     @Override
-    public void onCreateJob(QiangHongBaoService service) {
+    public void onCreateJob(LuckymoneyService service) {
         super.onCreateJob(service);
         sp = getContext().getSharedPreferences(getContext().getPackageName(), Context.MODE_PRIVATE);
         updatePackageInfo();
@@ -90,7 +90,7 @@ public class WechatAccessibilityJob extends BaseAccessibilityJob {
     @Override
     public void onReceiveJob(AccessibilityEvent event) {
         final int eventType = event.getEventType();
-        //接收到通知栏事件
+        // 通知栏变动
         if(eventType == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
             Parcelable data = event.getParcelableData();
             if(data == null || !(data instanceof Notification)) {
@@ -112,27 +112,33 @@ public class WechatAccessibilityJob extends BaseAccessibilityJob {
             if(isReceivingHongbao) {
                 handleChatListHongBao();
             }
-        } else if(eventType == AccessibilityEvent.TYPE_VIEW_CLICKED
+        }
+        else if(eventType == AccessibilityEvent.TYPE_VIEW_CLICKED
                 && event.getClassName().equals("android.widget.LinearLayout")
                 && sp.getBoolean("detect", false)){
 
-            Timestamp ts = new Timestamp(System.currentTimeMillis());//用于获得当前的 年月日
-            DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); //年月日 格式
-            DateFormat fullsdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//年月日 时分秒 格式
+            //获得当前的日期
+            Timestamp mTimestamp = new Timestamp(System.currentTimeMillis());
+            //日期格式
+            DateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            //日期时间格式
+            DateFormat mdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-            String tsStr = sdf.format(ts);
-            String eventText = event.getText().toString();//列表项中的文字
-            eventText = eventText.replaceAll("\\[|\\]", "");
-            Log.d(TAG, eventText);
-            Pattern p = Pattern.compile("(.+?), (\\d+:\\d+:\\d+)");//进行正则匹配，以提取出文字中的 用户名与时间戳，时间戳格式为：时分秒
-            Matcher m = p.matcher(eventText);
-            if (m.find()) {
-                String name = m.group(1);//正则表达式捕获到的用户名
-                String stime = m.group(2);//正则表达式捕获到的时间戳
-                String takeTime = tsStr + " " + stime;
+            String str = mDateFormat.format(mTimestamp);
+            String textstr = event.getText().toString();
+            textstr = textstr.replaceAll("\\[|\\]", "");
+            Log.d(TAG, textstr);
+
+            //正则匹配，提取出文字中的用户名与时间
+            Pattern mPattern = Pattern.compile("(.+?), (\\d+:\\d+:\\d+)");
+            Matcher mMatcher = mPattern.matcher(textstr);
+            if (mMatcher.find()) {
+                String name = mMatcher.group(1);//用户名
+                String mtime = mMatcher.group(2);//时间戳
+                String takeTime = str + " " + mtime;
                 try {
-                    //对String类型的时间戳进行转换与比较，判断其是否是外挂
-                    Date takeTimeDate = fullsdf.parse(takeTime);
+                    //计算时间差判断其是否是外挂
+                    Date takeTimeDate = mdf.parse(takeTime);
                     long timeGap = takeTimeDate.getTime() - receiveTime;
                     int timeLength = sp.getInt("time", 2000);
                     if (timeGap < timeLength){
@@ -143,14 +149,12 @@ public class WechatAccessibilityJob extends BaseAccessibilityJob {
                     e.printStackTrace();
                 }
             }
-            clickTime();//继续点击下一个列表项
+            GetTime();//继续点击下一个列表项
         }
 
     }
 
-
-
-    /** 通知栏事件的处理*/
+    // 通知栏事件的处理
     private void notificationEvent(String ticker, Notification nf) {
         String text = ticker;
         int index = text.indexOf(":");
@@ -158,13 +162,14 @@ public class WechatAccessibilityJob extends BaseAccessibilityJob {
             text = text.substring(index + 1);
         }
         text = text.trim();
-        if(text.contains(HONGBAO_TEXT_KEY)) { //通过判断通知消息中是否包含关键字判断是否是红包消息
+        // 通过判断通知消息中是否包含关键字判断是否是红包消息
+        if(text.contains(HONGBAO_TEXT_KEY)) {
             receiveTime = System.currentTimeMillis();
             newHongBaoNotification(nf);
         }
     }
 
-    /** 打开通知栏消息*/
+    // 打开通知栏消息
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void newHongBaoNotification(Notification notification) {
         isReceivingHongbao = true;
@@ -172,7 +177,8 @@ public class WechatAccessibilityJob extends BaseAccessibilityJob {
         boolean lock = NotifyHelper.isLockScreen(getContext());
 
         if(!lock) {
-            NotifyHelper.send(pendingIntent);//pendingIntent打开该条通知栏消息，跳转到聊天界面
+            //使用pendingIntent打开该条通知栏消息，以跳转到聊天界面
+            NotifyHelper.send(pendingIntent);
         }
 
     }
@@ -187,7 +193,7 @@ public class WechatAccessibilityJob extends BaseAccessibilityJob {
             mCurrentWindow = WINDOW_LUCKYMONEY_DETAIL;
             Log.w(TAG, "detail");
             //拆完红包后看详细的纪录界面
-            clickTime();
+            GetTime();
 
         } else if("com.tencent.mm.ui.LauncherUI".equals(event.getClassName())) {
             mCurrentWindow = WINDOW_LAUNCHER;
@@ -198,38 +204,35 @@ public class WechatAccessibilityJob extends BaseAccessibilityJob {
         }
     }
 
-    private boolean clickTime() {
-        AccessibilityNodeInfo nodeInfo = getService().getRootInActiveWindow();
-        if(nodeInfo == null) {
-			Log.w(TAG, "rootWindow为空");
+    private boolean GetTime() {
+
+        AccessibilityNodeInfo mNodeInfo = getService().getRootInActiveWindow();
+        if(mNodeInfo == null) {
+            Log.w(TAG, "rootWindow is empty");
             return true;
-		}
+        }
 
-		/*详情页界面结构为：
-		* rootView ---> FrameLayout ---> ListView ---> 具体的列表项*/
+        AccessibilityNodeInfo mListNode = null;
 
-        AccessibilityNodeInfo listNode = null;
-		//根据对界面的分析，发现除标题栏以外的内容都在android.widget.FrameLayout这个子布局之中
-        AccessibilityNodeInfo frameNode = AccessibilityHelper.findNodeInfosByClassName(nodeInfo, "android.widget.FrameLayout");
+        //除标题栏以外的内容都在android.widget.FrameLayout这个子布局之中
+        AccessibilityNodeInfo mFrameNode = AccessibilityHelper.findNodeInfosByClassName(mNodeInfo, "android.widget.FrameLayout");
 
-        //android.widget.ListView是抢红包情况的列表项所在的父布局
-        if (frameNode != null)
-            listNode = AccessibilityHelper.findNodeInfosByClassName(frameNode, "android.widget.ListView");
+        if (mFrameNode != null){
+            //android.widget.ListView是抢红包情况的列表项所在的父布局
+            mListNode = AccessibilityHelper.findNodeInfosByClassName(mFrameNode, "android.widget.ListView");
+        }
 
-        if (listNode != null && index < listNode.getChildCount()){
-            AccessibilityNodeInfo node = listNode.getChild(index);
+        if (mListNode != null && index < mListNode.getChildCount()){
+            AccessibilityNodeInfo node = mListNode.getChild(index);
             AccessibilityHelper.performClick(node);
             index++;
-        }
-        else {
+        } else {
             index = 0;
         }
         return false;
     }
 
-    /**
-     * 点击聊天里的红包后，进行组件查找与点击
-     * */
+    // 点击聊天里的红包后打开红包
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void handleLuckyMoneyReceive() {
         AccessibilityNodeInfo nodeInfo = getService().getRootInActiveWindow();
@@ -241,7 +244,8 @@ public class WechatAccessibilityJob extends BaseAccessibilityJob {
 
         int event = getConfig().getWechatAfterOpenHongBaoEvent();
         int wechatVersion = getWechatVersion();
-        if(event == Config.WX_AFTER_OPEN_HONGBAO) { //拆红包
+        //拆红包
+        if(event == Config.WX_AFTER_OPEN_HONGBAO) {
             if (wechatVersion < USE_ID_MIN_VERSION) {
                 targetNode = AccessibilityHelper.findNodeInfosByText(nodeInfo, "拆红包");
             } else {
@@ -254,7 +258,7 @@ public class WechatAccessibilityJob extends BaseAccessibilityJob {
                     targetNode = AccessibilityHelper.findNodeInfosById(nodeInfo, buttonId);
                 }
 
-                if(targetNode == null) { //通过组件查找
+                if(targetNode == null) {
                     targetNode = AccessibilityHelper.findNodeInfosByClassName(nodeInfo, BUTTON_CLASS_NAME);
                 }
             }
@@ -265,21 +269,19 @@ public class WechatAccessibilityJob extends BaseAccessibilityJob {
         }
     }
 
-    /**
-     * 收到聊天里的红包
-     * */
+    // 处于微信聊天列表时
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void handleChatListHongBao() {
 
         AccessibilityNodeInfo nodeInfo = getService().getRootInActiveWindow();
         if(nodeInfo == null) {
-            Log.w(TAG, "rootWindow为空");
+            Log.w(TAG, "rootWindow is empty");
             return;
         }
         List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByText("领取红包");
 
         if(list != null && list.isEmpty()) {
-            // 从消息列表查找红包
+            // 从消息列表中查找红包
             AccessibilityNodeInfo node = AccessibilityHelper.findNodeInfosByText(nodeInfo, "[微信红包]");
             if(node != null) {
                 if(BuildConfig.DEBUG) {
@@ -288,9 +290,10 @@ public class WechatAccessibilityJob extends BaseAccessibilityJob {
                 isReceivingHongbao = true;
                 AccessibilityHelper.performClick(nodeInfo);
             }
-        } else if(list != null) {
+        }
+        else if(list != null) {
             if (isReceivingHongbao){
-                //最新的红包领起
+                // 红包的领取顺序：从最新的红包开始领取
                 receiveTime = System.currentTimeMillis();
                 AccessibilityNodeInfo node = list.get(list.size() - 1);
                 AccessibilityHelper.performClick(node);

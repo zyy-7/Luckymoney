@@ -3,7 +3,7 @@ package com.codeboy.qianghongbao;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 
-public class BaseSettingsFragment extends PreferenceFragment {
+public class MainSettingsFragment extends PreferenceFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

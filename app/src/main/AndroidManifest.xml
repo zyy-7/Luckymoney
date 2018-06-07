@@ -42,7 +42,7 @@
         </activity>
 
         <service
-            android:name=".QiangHongBaoService"
+            android:name=".LuckymoneyService"
             android:enabled="true"
             android:exported="true"
             android:label="@string/service_name"
@@ -53,7 +53,7 @@
 
             <meta-data
                 android:name="android.accessibilityservice"
-                android:resource="@xml/qianghongbao_service_config"/>
+                android:resource="@xml/luckymoney_service_config"/>
         </service>
 
     </application>

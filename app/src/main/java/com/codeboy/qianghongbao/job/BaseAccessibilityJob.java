@@ -3,7 +3,7 @@ package com.codeboy.qianghongbao.job;
 import android.content.Context;
 
 import com.codeboy.qianghongbao.Config;
-import com.codeboy.qianghongbao.QiangHongBaoService;
+import com.codeboy.qianghongbao.LuckymoneyService;
 
 /**
  * <p>Created 16/1/16 上午12:38.</p>
@@ -14,10 +14,10 @@ import com.codeboy.qianghongbao.QiangHongBaoService;
  */
 public abstract class BaseAccessibilityJob implements AccessibilityJob {
 
-    private QiangHongBaoService service;
+    private LuckymoneyService service;
 
     @Override
-    public void onCreateJob(QiangHongBaoService service) {
+    public void onCreateJob(LuckymoneyService service) {
         this.service = service;
     }
 
@@ -29,7 +29,7 @@ public abstract class BaseAccessibilityJob implements AccessibilityJob {
         return service.getConfig();
     }
 
-    public QiangHongBaoService getService() {
+    public LuckymoneyService getService() {
         return service;
     }
 }
